@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algoritma & Struktur Data — Dari n ke Big O</title>
+  <style>
+    :root {
+      --bg: #f5f3ed;
+      --paper: #fffefb;
+      --ink: #20352f;
+      --muted: #64716b;
+      --line: #d9dfd6;
+      --green: #246849;
+      --soft: #e9f2e8;
+      --yellow: #fff2c5;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    main { max-width: 1100px; margin: auto; padding: 48px 22px 64px; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.045em; margin: 14px 0; }
+    h2 { font-size: 1.6rem; margin-top: 0; }
+    h3 { font-size: 1.2rem; }
+    p { margin: 12px 0; }
+    .eyebrow { font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .lead { max-width: 740px; color: var(--muted); font-size: 1.1rem; }
+    .panel, .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+    }
+    .panel { margin-top: 28px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+    .card { display: flex; flex-direction: column; }
+    .card.focus { grid-column: 1 / -1; border: 2px solid var(--green); }
+    .tag {
+      display: inline-block;
+      width: fit-content;
+      border-radius: 30px;
+      background: var(--soft);
+      color: var(--green);
+      padding: 4px 12px;
+      font-size: .8rem;
+      font-weight: 750;
+    }
+    .question { flex: 1; }
+    button {
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      padding: 10px 16px;
+      background: var(--green);
+      color: white;
+    }
+    button:hover { filter: brightness(.92); }
+    button:focus-visible, input:focus-visible, summary:focus-visible {
+      outline: 3px solid #b1761d;
+      outline-offset: 4px;
+    }
+    .flip { align-self: flex-start; margin-top: 18px; }
+    .answer { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 18px; }
+    .answer:not([hidden]) { animation: reveal .25s ease-out; }
+    [hidden] { display: none !important; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .formula { font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 800; color: var(--green); margin: 12px 0; }
+    .notice { background: var(--yellow); border-left: 4px solid #a87916; border-radius: 8px; padding: 16px 18px; }
+    .hint { color: var(--muted); font-size: .92rem; }
+    ol, ul { padding-left: 24px; }
+    li + li { margin-top: 6px; }
+    code { background: #edf0e9; padding: 2px 6px; border-radius: 5px; }
+    pre {
+      overflow-x: auto;
+      background: #20352f;
+      color: #eef5eb;
+      padding: 20px;
+      border-radius: 12px;
+      line-height: 1.6;
+    }
+    pre code { padding: 0; background: none; color: inherit; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; text-align: left; }
+    th, td { border-bottom: 1px solid var(--line); padding: 12px; vertical-align: top; }
+    th { color: var(--green); background: var(--soft); }
+    .simulator { background: var(--soft); border-radius: 12px; padding: 20px; margin-top: 20px; }
+    .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    input[type="range"] { accent-color: var(--green); width: min(100%, 300px); }
+    .guest-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 16px; }
+    .guest { border: 1px solid #cbd8c8; background: var(--paper); border-radius: 8px; padding: 10px; font-size: .85rem; }
+    .steps { display: flex; gap: 5px; margin-top: 7px; }
+    .step { background: #dce5d9; border-radius: 5px; padding: 3px 8px; }
+    .step.done { color: white; background: var(--green); }
+    .status { min-height: 3.3em; font-weight: 650; }
+    details { margin-top: 18px; }
+    summary { cursor: pointer; font-weight: 700; }
+    footer { margin-top: 28px; color: var(--muted); text-align: center; font-size: .9rem; }
+    @media (max-width: 700px) {
+      main { padding: 28px 16px 40px; }
+      .grid { grid-template-columns: 1fr; }
+      .panel, .card { padding: 20px; }
+      th, td { padding: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .answer:not([hidden]) { animation: none; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Materi • Algoritma & Struktur Data</span>
+    <h1>Satu daftar.<br>Banyak cara berpikir.</h1>
+    <p class="lead">
+      Mulai dari mencari “Dewi”, membandingkan dua daftar, hingga memahami
+      mengapa <strong>3n tetap O(n)</strong>.
+    </p>
+  </header>
+
+  <section class="panel" aria-labelledby="intro-title">
+    <h2 id="intro-title">Bekal singkat</h2>
+    <p><strong>Algoritma</strong> adalah urutan langkah yang jelas dan berhingga untuk menyelesaikan masalah.</p>
+    <p><strong>Struktur data</strong> adalah cara menyimpan dan mengatur data, misalnya array/list untuk daftar tamu atau set untuk kumpulan nama unik.</p>
+    <p>
+      <strong>Big O</strong> menyatakan batas atas pertumbuhan kebutuhan waktu atau memori
+      saat ukuran input <code>n</code> bertambah. Di latihan ini, kita membahas
+      <strong>waktu pada kasus terburuk</strong>, bukan durasi dalam detik.
+    </p>
+    <p class="hint">
+      Aturan hitung: P1–P2 menghitung perbandingan nama; P3 menghitung pelaksanaan
+      proses di dalam loop. Biaya pengaturan loop tidak dihitung secara terpisah.
+    </p>
+  </section>
+
+  <section class="panel" aria-labelledby="activity-title">
+    <span class="eyebrow">Your Turn — In Pairs</span>
+    <h2 id="activity-title">Giliran kalian — Berpasangan</h2>
+    <p>
+      Kerjakan di kertas. Instruktur tidak akan memberikan jawaban sampai kamu bertanya.
+      Balik setiap kartu ketika kamu siap untuk memeriksa jawaban.
+    </p>
+    <p class="hint">
+      Alur studi kasus: cari satu nama → bandingkan dua daftar → proses setiap tamu
+      → kenali pola penjumlahan.
+    </p>
+  </section>
+
+  <section class="grid" aria-label="Kartu soal dan jawaban">
+    <article class="card">
+      <span class="tag">P1 • Satu daftar</span>
+      <h2>Apakah Dewi hadir?</h2>
+      <div class="question">
+        <p>Daftar tamu berisi <code>n</code> nama. Buat instruksi sederhana untuk memeriksa apakah “Dewi” ada di dalamnya. Berapa langkah pada kasus terburuk?</p>
+        <p class="hint">Asumsi: daftar belum diurutkan dan belum memiliki indeks pencarian.</p>
+      </div>
+      <button class="flip" type="button" aria-expanded="false" aria-controls="answer-p1">Balik kartu — lihat jawaban</button>
+      <div class="answer" id="answer-p1" hidden>
+        <ol>
+          <li>Mulai dari nama pertama.</li>
+          <li>Bandingkan nama tersebut dengan “Dewi”. Jika cocok, berhenti.</li>
+          <li>Jika belum cocok, periksa nama berikutnya.</li>
+          <li>Jika daftar habis, nyatakan “Dewi tidak ditemukan”.</li>
+        </ol>
+        <p class="formula">n perbandingan → O(n)</p>
+        <p>Kasus terburuk terjadi ketika Dewi berada di posisi terakhir atau tidak ada. Semua <code>n</code> nama harus diperiksa.</p>
+        <p><strong>Contoh:</strong> 10 nama membutuhkan paling banyak 10 perbandingan. Ini disebut <em>linear search</em>.</p>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="tag">P2 • Dua daftar</span>
+      <h2>Siapa yang ada di keduanya?</h2>
+      <div class="question">
+        <p>Ada dua daftar tamu, masing-masing berisi <code>n</code> nama. Temukan satu nama yang muncul di kedua daftar. Tuliskan instruksi dan jumlah langkahnya.</p>
+        <p class="hint">Kembangkan cara P1: nama yang dicari sekarang berasal dari daftar pertama.</p>
+      </div>
+      <button class="flip" type="button" aria-expanded="false" aria-controls="answer-p2">Balik kartu — lihat jawaban</button>
+      <div class="answer" id="answer-p2" hidden>
+        <ol>
+          <li>Ambil satu nama dari daftar A.</li>
+          <li>Cari nama itu di daftar B menggunakan cara P1.</li>
+          <li>Jika cocok, laporkan nama tersebut dan berhenti.</li>
+          <li>Jika tidak cocok, ulangi untuk nama berikutnya di A.</li>
+        </ol>
+        <p class="formula">n × n = n² → O(n²)</p>
+        <p>Jika tidak ada nama yang sama, setiap nama di A dibandingkan dengan seluruh <code>n</code> nama di B.</p>
+        <p><strong>Contoh:</strong> dua daftar berisi 10 nama membutuhkan 100 perbandingan pada kasus terburuk.</p>
+        <details>
+          <summary>Apakah ada cara yang lebih efisien?</summary>
+          <p>Simpan nama di B ke dalam <em>hash set</em>, lalu periksa setiap nama A. Dengan operasi hash yang rata-rata O(1), total waktu yang diharapkan menjadi O(n), dengan memori tambahan O(n). Ini bukan jaminan waktu terburuk untuk semua implementasi hash.</p>
+        </details>
+      </div>
+    </article>
+
+    <article class="card focus">
+      <span class="tag">P3 • Pembahasan utama</span>
+      <h2>Setiap tamu, tiga proses</h2>
+      <div class="question">
+        <p>Sebuah loop berjalan sebanyak <code>n</code> kali. Di dalam setiap perulangan, suatu proses dilakukan sebanyak <strong>3 kali</strong>. Berapa total langkahnya?</p>
+        <p class="hint">Dalam studi kasus daftar tamu, bayangkan setiap tamu mendapatkan tiga tindakan yang masing-masing berbiaya tetap.</p>
+      </div>
+      <button class="flip" type="button" aria-expanded="false" aria-controls="answer-p3">Balik kartu — lihat pembahasan P3</button>
+
+      <div class="answer" id="answer-p3" hidden>
+        <aside class="notice" aria-label="Identitas kelompok">
+          <strong>Ini jawaban kelompok Meydian dan Rendy.</strong><br>
+          P3 — Menghitung total langkah dan memahami kompleksitas O(n).
+        </aside>
+
+        <h3>1. Jawaban utama</h3>
+        <p class="formula">T(n) = 3 × n = 3n langkah</p>
+        <p>
+          Loop luar berjalan <strong>n kali</strong>. Setiap putaran menjalankan
+          <strong>3 proses</strong>. Karena jumlah proses setiap putaran sama,
+          totalnya diperoleh dengan perkalian.
+        </p>
+
+        <h3>2. Hubungan dengan daftar tamu</h3>
+        <p>Untuk setiap tamu, petugas melakukan tiga tindakan:</p>
+        <ol>
+          <li>Menandai kehadiran pada entri tamu yang sedang diproses.</li>
+          <li>Memberikan kartu nama yang sudah disiapkan.</li>
+          <li>Memberikan kupon makan.</li>
+        </ol>
+        <p>
+          Kita menganggap setiap tindakan sebagai satu langkah berbiaya tetap.
+          Jadi, satu tamu membutuhkan 3 langkah, dua tamu 6 langkah, dan
+          <code>n</code> tamu membutuhkan <code>3n</code> langkah.
+        </p>
+
+        <h3>3. Bentuk algoritmanya</h3>
+        <pre><code>untuk i dari 1 sampai n:
+    untuk j dari 1 sampai 3:
+        lakukan_satu_proses()  // satu langkah berbiaya tetap
+
+// Total pelaksanaan proses = n × 3 = 3n</code></pre>
+
+        <h3>4. Contoh perhitungan</h3>
+        <div class="table-wrap">
+          <table>
+            <caption>Jumlah proses bertambah sebanding dengan jumlah tamu.</caption>
+            <thead>
+              <tr><th scope="col">Jumlah tamu (n)</th><th scope="col">Perhitungan</th><th scope="col">Total langkah</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>3 × 1</td><td>3</td></tr>
+              <tr><td>5</td><td>3 × 5</td><td>15</td></tr>
+              <tr><td>10</td><td>3 × 10</td><td>30</td></tr>
+              <tr><td>100</td><td>3 × 100</td><td>300</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5. Mengapa Big O-nya O(n)?</h3>
+        <p>
+          Pada <code>T(n) = 3n</code>, angka 3 adalah faktor konstan:
+          nilainya tidak ikut bertambah ketika <code>n</code> bertambah.
+          Big O mengabaikan faktor konstan tersebut sehingga kompleksitasnya
+          <strong>O(n), atau linear</strong>.
+        </p>
+        <p>
+          Jika jumlah tamu menjadi dua kali lipat, jumlah proses juga menjadi dua
+          kali lipat. Jumlah langkah tepatnya tetap <strong>3n</strong>;
+          penulisan O(n) menjelaskan pola pertumbuhannya.
+          Untuk model ini, batas ketatnya adalah <strong>Θ(n)</strong>.
+        </p>
+
+        <h3>6. Mengapa berbeda dengan P2?</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">Pembanding</th><th scope="col">P2</th><th scope="col">P3</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Putaran luar</th><td>n nama di A</td><td>n tamu</td></tr>
+              <tr><th scope="row">Pekerjaan per putaran</th><td>Hingga n perbandingan</td><td>Selalu 3 proses</td></tr>
+              <tr><th scope="row">Total</th><td>n² pada kasus terburuk</td><td>3n</td></tr>
+              <tr><th scope="row">Big O</th><td>O(n²)</td><td>O(n)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Loop bersarang tidak otomatis O(n²).</strong> Perhatikan batas setiap loop: P2 memiliki batas <code>n × n</code>, sedangkan P3 memiliki batas <code>n × 3</code>.</p>
+        <p class="hint">
+          Asumsi penting: proses di dalam P3 berbiaya O(1).
+          Jika setiap proses ternyata mencari nama dalam seluruh daftar seperti P1,
+          pekerjaannya bisa menjadi O(n²).
+        </p>
+
+        <section class="simulator" aria-labelledby="sim-title">
+          <h3 id="sim-title">Coba sendiri: simulasikan 3n</h3>
+          <label for="guest-count">Jumlah tamu: <strong><output id="count-output" for="guest-count">4</output></strong></label>
+          <div class="controls">
+            <input id="guest-count" type="range" min="1" max="12" value="4">
+            <button id="next-step" type="button">Jalankan 1 langkah</button>
+            <button id="reset" type="button">Ulangi</button>
+          </div>
+          <p id="sim-formula" class="formula">3 × 4 = 12 langkah</p>
+          <div id="guest-grid" class="guest-grid" aria-label="Kemajuan proses setiap tamu"></div>
+          <p id="sim-status" class="status" role="status" aria-live="polite"></p>
+          <p class="hint">Angka 1, 2, dan 3 mewakili tiga proses untuk satu tamu. Setiap klik menyelesaikan satu proses.</p>
+        </section>
+
+        <div class="notice" style="margin-top: 22px">
+          <strong>Jawaban singkat untuk disampaikan:</strong>
+          “Total langkahnya adalah 3n karena loop berjalan n kali dan setiap
+          putaran menjalankan 3 proses. Kompleksitas waktunya O(n) karena 3
+          merupakan konstanta. Berbeda dengan P2, jumlah proses di dalam loop
+          ini tetap 3, tidak bertambah mengikuti n.”
+        </div>
+      </div>
+    </article>
+
+    <article class="card" style="grid-column: 1 / -1">
+      <span class="tag">Bonus • Temukan pola</span>
+      <h2>1 + 2 + 3 + ⋯ + 100</h2>
+      <div class="question">
+        <p>Hitung hasilnya tanpa menjumlahkan satu per satu.</p>
+        <p class="hint">Hubungan dengan P3: P3 menjumlahkan 3 sebanyak n kali. Bonus menjumlahkan nilai yang bertambah dari 1 sampai 100.</p>
+      </div>
+      <button class="flip" type="button" aria-expanded="false" aria-controls="answer-bonus">Balik kartu — lihat jawaban</button>
+      <div class="answer" id="answer-bonus" hidden>
+        <p>Pasangkan angka dari kedua ujung:</p>
+        <p><code>1 + 100 = 101</code>, <code>2 + 99 = 101</code>, …, <code>50 + 51 = 101</code>.</p>
+        <p>Ada <strong>50 pasangan</strong>, masing-masing berjumlah <strong>101</strong>.</p>
+        <p class="formula">50 × 101 = 5.050</p>
+        <p>Rumus umumnya: <strong>1 + 2 + ⋯ + n = n(n + 1) / 2</strong>.</p>
+        <p>
+          Jika loop pada putaran ke-i melakukan i proses, jumlah prosesnya
+          menjadi n(n + 1)/2, sehingga pertumbuhannya O(n²).
+          Namun, menghitung <em>nilai jumlah</em> langsung dengan rumus membutuhkan
+          O(1) operasi aritmetika, dengan asumsi aritmetika berbiaya tetap.
+        </p>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel" aria-labelledby="sorting-title">
+    <h2 id="sorting-title">Sekilas algoritma sorting</h2>
+    <p><strong>Sorting</strong> mengurutkan data, misalnya nama A–Z atau nomor tamu dari kecil ke besar. Algoritma yang cocok bergantung pada jenis data dan kebutuhan.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Algoritma</th><th scope="col">Waktu</th><th scope="col">Catatan</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bubble Sort</td><td>O(n²), kasus terburuk</td><td>Mudah dipelajari; kurang efisien untuk data besar.</td></tr>
+          <tr><td>Merge Sort</td><td>O(n log n), kasus terburuk</td><td>Efisien dan stabil; versi array umumnya memerlukan memori tambahan O(n).</td></tr>
+          <tr><td>Quick Sort</td><td>Rata-rata O(n log n); terburuk O(n²)</td><td>Sering cepat; pemilihan pivot memengaruhi kinerja.</td></tr>
+          <tr><td>Radix Sort</td><td>O(d(n + b))</td><td>Mengurutkan per digit; d adalah jumlah digit dan b adalah basis/jumlah bucket.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <details>
+      <summary>Contoh Radix Sort dan kapan bagus digunakan</summary>
+      <p>Contoh mengurutkan nomor dua digit dengan Radix Sort LSD, dari digit satuan lalu puluhan. Setiap tahap harus menjaga urutan relatif data dengan digit yang sama (<em>stabil</em>).</p>
+      <ol>
+        <li>Awal: <code>21, 13, 12, 23</code>.</li>
+        <li>Urutkan digit satuan: <code>21, 12, 13, 23</code>.</li>
+        <li>Urutkan digit puluhan secara stabil: <code>12, 13, 21, 23</code>.</li>
+      </ol>
+      <p>
+        <strong>Radix Sort bisa sangat efisien</strong> untuk bilangan bulat atau
+        kunci dengan jumlah digit terbatas. Jika d dan b dianggap tetap,
+        waktunya menjadi O(n).
+        Namun, Radix Sort <strong>bukan selalu yang paling bagus</strong>:
+        panjang kunci, jenis data, kebutuhan memori, dan implementasi ikut menentukan.
+      </p>
+    </details>
+  </section>
+
+  <footer>P1: n • P2: n² • P3: 3n • Bonus: cari pola sebelum menghitung.</footer>
+</main>
+
+<script>
+  // Setiap kartu dapat dibuka dan ditutup menggunakan mouse atau keyboard.
+  document.querySelectorAll(".flip").forEach(button => {
+    button.addEventListener("click", () => {
+      const answer = document.getElementById(button.getAttribute("aria-controls"));
+      const isOpen = button.getAttribute("aria-expanded") === "true";
+
+      if (!button.dataset.originalLabel) {
+        button.dataset.originalLabel = button.textContent;
+      }
+
+      button.setAttribute("aria-expanded", String(!isOpen));
+      answer.hidden = isOpen;
+      button.textContent = isOpen
+        ? button.dataset.originalLabel
+        : "Tutup jawaban — kembali berpikir";
+    });
+  });
+
+  const slider = document.getElementById("guest-count");
+  const countOutput = document.getElementById("count-output");
+  const formula = document.getElementById("sim-formula");
+  const grid = document.getElementById("guest-grid");
+  const status = document.getElementById("sim-status");
+  const nextButton = document.getElementById("next-step");
+  const resetButton = document.getElementById("reset");
+
+  const processNames = [
+    "menandai kehadiran",
+    "memberikan kartu nama",
+    "memberikan kupon makan"
+  ];
+
+  let completed = 0;
+
+  function renderSimulation() {
+    const n = Number(slider.value);
+    const total = n * 3;
+
+    countOutput.value = n;
+    formula.textContent = `3 × ${n} = ${total} langkah`;
+    grid.replaceChildren();
+
+    for (let guestIndex = 0; guestIndex < n; guestIndex++) {
+      const guest = document.createElement("div");
+      guest.className = "guest";
+
+      const title = document.createElement("strong");
+      title.textContent = `Tamu ${guestIndex + 1}`;
+      guest.appendChild(title);
+
+      const steps = document.createElement("div");
+      steps.className = "steps";
+
+      for (let processIndex = 0; processIndex < 3; processIndex++) {
+        const done = guestIndex * 3 + processIndex < completed;
+        const step = document.createElement("span");
+        step.className = `step${done ? " done" : ""}`;
+        step.textContent = `${processIndex + 1}${done ? " ✓" : ""}`;
+        step.setAttribute(
+          "aria-label",
+          `${processNames[processIndex]}: ${done ? "selesai" : "belum"}`
+        );
+        steps.appendChild(step);
+      }
+
+      guest.appendChild(steps);
+      grid.appendChild(guest);
+    }
+
+    if (completed === 0) {
+      status.textContent = `0 dari ${total} langkah selesai. Mulai dari tamu pertama.`;
+    } else if (completed === total) {
+      status.textContent = `Selesai! ${n} tamu × 3 proses = ${total} langkah. Kompleksitasnya tetap O(n).`;
+    } else {
+      const guestNumber = Math.floor((completed - 1) / 3) + 1;
+      const processIndex = (completed - 1) % 3;
+      status.textContent =
+        `${completed} dari ${total} langkah selesai. ` +
+        `Tamu ${guestNumber}: ${processNames[processIndex]}.`;
+    }
+
+    nextButton.textContent = completed === total
+      ? "Selesai — klik untuk ulangi"
+      : "Jalankan 1 langkah";
+  }
+
+  slider.addEventListener("input", () => {
+    completed = 0;
+    renderSimulation();
+  });
+
+  nextButton.addEventListener("click", () => {
+    const total = Number(slider.value) * 3;
+    completed = completed === total ? 0 : completed + 1;
+    renderSimulation();
+  });
+
+  resetButton.addEventListener("click", () => {
+    completed = 0;
+    renderSimulation();
+  });
+
+  renderSimulation();
+</script>
+</body>
+</html>
